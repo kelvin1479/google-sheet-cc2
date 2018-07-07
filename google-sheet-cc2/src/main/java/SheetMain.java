@@ -11,6 +11,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
+import com.google.api.services.sheets.v4.Sheets.Spreadsheets.Values.Get;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
@@ -53,31 +54,36 @@ public class SheetMain {
                 .build();
         return new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
     }
+    
+    public static Sheets createSheetsService() throws IOException, GeneralSecurityException {
+        // Build a new authorized API client service.
+        NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
+
+        return new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
+                .setApplicationName(APPLICATION_NAME)
+                .build();
+      }
 
     /**
      * Prints the names and majors of students in a sample spreadsheet:
      * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
      */
     public static void main(String... args) throws IOException, GeneralSecurityException {
-        // Build a new authorized API client service.
-        final NetHttpTransport HTTP_TRANSPORT = GoogleNetHttpTransport.newTrustedTransport();
         
         Scanner scanner = new Scanner(System.in);
         System.out.print("Input spreadsheetID: ");
         String spreadsheetId = scanner.nextLine();
         System.out.print("Input sheet name: ");
         String sheetName = scanner.nextLine();
-        System.out.print("Input range: ");
+        System.out.print("Input range (e.g. A1:B2) : ");
         String sheetRange = scanner.nextLine();
         final String range = sheetName + "!" + sheetRange;
         scanner.close();
         
-        Sheets service = new Sheets.Builder(HTTP_TRANSPORT, JSON_FACTORY, getCredentials(HTTP_TRANSPORT))
-                .setApplicationName(APPLICATION_NAME)
-                .build();
-        ValueRange response = service.spreadsheets().values()
-                .get(spreadsheetId, range)
-                .execute();
+        Sheets service = createSheetsService();
+        Get request = service.spreadsheets().values()
+                .get(spreadsheetId, range);
+        ValueRange response = request.execute();
         List<List<Object>> values = response.getValues();
         if (values == null || values.isEmpty()) {
             System.out.println("No data found.");

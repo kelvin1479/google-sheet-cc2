@@ -78,6 +78,7 @@ public class SheetMain {
         
         Scanner scanner = new Scanner(System.in);
         System.out.print("Input spreadsheetID: ");
+// 		use 19VFf3p2iVPj950875E9xLB_qJfqkEda6fESBgjslu6I for testing
         String spreadsheetId = scanner.nextLine();
 //        System.out.print("Input sheet name: ");
 //        String sheetName = scanner.nextLine();

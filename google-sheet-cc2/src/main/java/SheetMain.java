@@ -13,12 +13,15 @@ import com.google.api.client.util.store.FileDataStoreFactory;
 import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.Sheets.Spreadsheets.Values.Get;
 import com.google.api.services.sheets.v4.SheetsScopes;
+import com.google.api.services.sheets.v4.model.Sheet;
+import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.security.GeneralSecurityException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Scanner;
@@ -63,36 +66,43 @@ public class SheetMain {
                 .setApplicationName(APPLICATION_NAME)
                 .build();
       }
+    
+    public static List<Sheet> getSheetList(Sheets service, String spreadsheetId) throws IOException{
+	    	Spreadsheet sp = service.spreadsheets().get(spreadsheetId).execute();
+	    	List<Sheet> sheets = sp.getSheets();
+	    	return sheets;
+    }
+    
 
-    /**
-     * Prints the names and majors of students in a sample spreadsheet:
-     * https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-     */
     public static void main(String... args) throws IOException, GeneralSecurityException {
         
         Scanner scanner = new Scanner(System.in);
         System.out.print("Input spreadsheetID: ");
         String spreadsheetId = scanner.nextLine();
-        System.out.print("Input sheet name: ");
-        String sheetName = scanner.nextLine();
-        System.out.print("Input range (e.g. A1:B2) : ");
-        String sheetRange = scanner.nextLine();
-        final String range = sheetName + "!" + sheetRange;
+//        System.out.print("Input sheet name: ");
+//        String sheetName = scanner.nextLine();
+//        System.out.print("Input range (e.g. A1:B2) : ");
+//        String sheetRange = scanner.nextLine();
+//        final String range = sheetName + "!" + sheetRange;
         scanner.close();
         
         Sheets service = createSheetsService();
-        Get request = service.spreadsheets().values()
-                .get(spreadsheetId, range);
-        ValueRange response = request.execute();
-        List<List<Object>> values = response.getValues();
-        if (values == null || values.isEmpty()) {
-            System.out.println("No data found.");
-        } else {
-            System.out.println("N\t mean\t min\t max");
-            for (List<Object> row : values) {
-                // Print columns A and E, which correspond to indices 0 and 4.
-                System.out.printf("%s\t %s\t %s\t %s\n", row.get(0), row.get(1), row.get(2), row.get(3));
-            }
+        List<Sheet> sheetList = getSheetList(service, spreadsheetId);
+        for(Sheet ss : sheetList) {
+        		System.out.println(ss.getProperties().getTitle());
         }
+//        Get request = service.spreadsheets().values()
+//                .get(spreadsheetId, range);
+//        ValueRange response = request.execute();
+//        List<List<Object>> values = response.getValues();
+//        if (values == null || values.isEmpty()) {
+//            System.out.println("No data found.");
+//        } else {
+//            System.out.println("N\t mean\t min\t max");
+//            for (List<Object> row : values) {
+//                // Print columns A and E, which correspond to indices 0 and 4.
+//                System.out.printf("%s\t %s\t %s\t %s\n", row.get(0), row.get(1), row.get(2), row.get(3));
+//            }
+//        }
     }
 }

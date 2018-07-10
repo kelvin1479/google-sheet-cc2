@@ -77,7 +77,7 @@ public class SheetMain {
 	}
 	
 	public static boolean isFormula(Object o) {
-		if(o instanceof String) {
+		if(o instanceof String && (!((String) o).isEmpty() || !o.equals(""))) {
 			if(((String) o).charAt(0) == '=') return true;
 		}
 		return false;
@@ -101,12 +101,14 @@ public class SheetMain {
 		}
 		System.out.print("Input sheet number: ");
 		int sheetIndex = scanner.nextInt();
-		System.out.print("Input range (e.g. A1:B2) : ");
+		System.out.print("Input range (e.g. A1:B2), Enter n to fetch whole sheet: ");
 		String sheetRange = scanner.next();
 		scanner.close();
+		String range = (sheetRange.equals("n")) ? sheetList.get(sheetIndex).getProperties().getTitle() : 
+												 sheetList.get(sheetIndex).getProperties().getTitle()+"!"+sheetRange;
 		
 		Get request = service.spreadsheets().values()
-				.get(spreadsheetId, sheetList.get(sheetIndex).getProperties().getTitle()+"!"+sheetRange);
+				.get(spreadsheetId, range);
 		request.setValueRenderOption("FORMULA");
 		ValueRange response = request.execute();
 		List<List<Object>> values = response.getValues();

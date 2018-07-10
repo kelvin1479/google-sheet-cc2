@@ -21,6 +21,7 @@ import com.google.api.services.sheets.v4.model.ValueRange;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,6 +75,13 @@ public class SheetMain {
 		List<Sheet> sheets = sp.getSheets();
 		return sheets;
 	}
+	
+	public static boolean isFormula(Object o) {
+		if(o instanceof String) {
+			if(((String) o).charAt(0) == '=') return true;
+		}
+		return false;
+	}
 
 
 	public static void main(String... args) throws IOException, GeneralSecurityException {
@@ -81,7 +89,7 @@ public class SheetMain {
 		Scanner scanner = new Scanner(System.in);
 		//        System.out.print("Input spreadsheetID: ");
 		// 		use 19VFf3p2iVPj950875E9xLB_qJfqkEda6fESBgjslu6I for id for testing now
-		String spreadsheetId = "19VFf3p2iVPj950875E9xLB_qJfqkEda6fESBgjslu6I";
+		String spreadsheetId = "16B5hitBc1CHs0F_Lxo-WS0dc_JB3EYuQsmvZy42jcxA";
 
 		Sheets service = createSheetsService();
 		List<Sheet> sheetList = getSheetList(service, spreadsheetId);
@@ -96,10 +104,10 @@ public class SheetMain {
 		System.out.print("Input range (e.g. A1:B2) : ");
 		String sheetRange = scanner.next();
 		scanner.close();
+		
 		Get request = service.spreadsheets().values()
 				.get(spreadsheetId, sheetList.get(sheetIndex).getProperties().getTitle()+"!"+sheetRange);
-		System.out.println(request.getAlt());
-//		request.setValueRenderOption("FORMULA");
+		request.setValueRenderOption("FORMULA");
 		ValueRange response = request.execute();
 		List<List<Object>> values = response.getValues();
 		if (values == null || values.isEmpty()) {
@@ -109,7 +117,7 @@ public class SheetMain {
 			for (List<Object> row : values) {
 				if(row != null) {
 					for(int j=0; j<row.size(); j++)
-						System.out.printf("%-20s", row.get(j));
+						System.out.printf("%-20s", isFormula(row.get(j)));
 				}
 				System.out.println();
 			}

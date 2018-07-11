@@ -18,6 +18,8 @@ import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
+import spreadsheet.struct.StructDefine;
+
 import com.google.api.services.script.Script;
 import com.google.api.services.script.model.Content;
 import com.google.api.services.script.model.CreateProjectRequest;
@@ -137,7 +139,7 @@ public class SheetMain {
 				System.out.print(rowNum++ + "\t");
 				if(row != null) {
 					for(int j=0; j<row.size(); j++)
-						System.out.printf("%-20s", getType(row.get(j)));
+						System.out.printf("%-20s", new StructDefine.Cell(row.get(j)).getFormula());
 				}
 				System.out.println();
 			}

@@ -18,6 +18,12 @@ import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
+import com.google.api.services.script.Script;
+import com.google.api.services.script.model.Content;
+import com.google.api.services.script.model.CreateProjectRequest;
+import com.google.api.services.script.model.File;
+import com.google.api.services.script.model.Project;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -88,7 +94,7 @@ public class SheetMain {
 
 		Scanner scanner = new Scanner(System.in);
 		//        System.out.print("Input spreadsheetID: ");
-		// 		use 19VFf3p2iVPj950875E9xLB_qJfqkEda6fESBgjslu6I for id for testing now
+		// for testing, login to the google acc and choose any spreadsheet, find the ID in the URL
 		String spreadsheetId = "16B5hitBc1CHs0F_Lxo-WS0dc_JB3EYuQsmvZy42jcxA";
 
 		Sheets service = createSheetsService();
@@ -115,8 +121,9 @@ public class SheetMain {
 		if (values == null || values.isEmpty()) {
 			System.out.println("No data found.");
 		} else {
-//			System.out.println("N\t mean\t min\t max");
+			int rowNum = 0;
 			for (List<Object> row : values) {
+				System.out.print(rowNum++ + "\t");
 				if(row != null) {
 					for(int j=0; j<row.size(); j++)
 						System.out.printf("%-20s", isFormula(row.get(j)));

@@ -82,11 +82,22 @@ public class SheetMain {
 		return sheets;
 	}
 	
-	public static boolean isFormula(Object o) {
-		if(o instanceof String && (!((String) o).isEmpty() || !o.equals(""))) {
-			if(((String) o).charAt(0) == '=') return true;
+//	public static boolean isFormula(Object o) {
+//		if(o instanceof String && (!((String) o).isEmpty() || !o.equals(""))) {
+//			if(((String) o).charAt(0) == '=') return true;
+//		}
+//		return false;
+//	}
+	
+	public static String getType(Object o) {
+		if(o instanceof String) {
+			if(!((String) o).isEmpty() || !o.equals("")) {
+				if(((String) o).charAt(0) == '=') return "FORMULA";
+				else return "STRING";
+			}
+			else return "EMPTY";
 		}
-		return false;
+		return "DATA";
 	}
 
 
@@ -94,7 +105,7 @@ public class SheetMain {
 
 		Scanner scanner = new Scanner(System.in);
 		//        System.out.print("Input spreadsheetID: ");
-		// for testing, login to the google acc and choose any spreadsheet, find the ID in the URL
+		// for testing, login to the google acc and choose any spreadsheet, find the ID in the URL 
 		String spreadsheetId = "16B5hitBc1CHs0F_Lxo-WS0dc_JB3EYuQsmvZy42jcxA";
 
 		Sheets service = createSheetsService();
@@ -126,7 +137,7 @@ public class SheetMain {
 				System.out.print(rowNum++ + "\t");
 				if(row != null) {
 					for(int j=0; j<row.size(); j++)
-						System.out.printf("%-20s", isFormula(row.get(j)));
+						System.out.printf("%-20s", getType(row.get(j)));
 				}
 				System.out.println();
 			}

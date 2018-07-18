@@ -14,11 +14,14 @@ import com.google.api.services.sheets.v4.Sheets;
 import com.google.api.services.sheets.v4.Sheets.Spreadsheets.Values.Get;
 import com.google.api.services.sheets.v4.SheetsScopes;
 import com.google.api.services.sheets.v4.model.CellData;
+import com.google.api.services.sheets.v4.model.GridData;
+import com.google.api.services.sheets.v4.model.GridRange;
 import com.google.api.services.sheets.v4.model.Sheet;
 import com.google.api.services.sheets.v4.model.Spreadsheet;
 import com.google.api.services.sheets.v4.model.ValueRange;
 
 import spreadsheet.struct.StructDefine;
+import spreadsheet.struct.StructDefine.Cell;
 
 import com.google.api.services.script.Script;
 import com.google.api.services.script.model.Content;
@@ -78,31 +81,6 @@ public class SheetMain {
 	}
 
 
-	public static List<Sheet> getSheetList(Sheets service, String spreadsheetId) throws IOException{
-		Spreadsheet sp = service.spreadsheets().get(spreadsheetId).execute();
-		List<Sheet> sheets = sp.getSheets();
-		return sheets;
-	}
-	
-//	public static boolean isFormula(Object o) {
-//		if(o instanceof String && (!((String) o).isEmpty() || !o.equals(""))) {
-//			if(((String) o).charAt(0) == '=') return true;
-//		}
-//		return false;
-//	}
-	
-	public static String getType(Object o) {
-		if(o instanceof String) {
-			if(!((String) o).isEmpty() || !o.equals("")) {
-				if(((String) o).charAt(0) == '=') return "FORMULA";
-				else return "STRING";
-			}
-			else return "EMPTY";
-		}
-		return "DATA";
-	}
-
-
 	public static void main(String... args) throws IOException, GeneralSecurityException {
 
 		Scanner scanner = new Scanner(System.in);
@@ -111,7 +89,7 @@ public class SheetMain {
 		String spreadsheetId = "16B5hitBc1CHs0F_Lxo-WS0dc_JB3EYuQsmvZy42jcxA";
 
 		Sheets service = createSheetsService();
-		List<Sheet> sheetList = getSheetList(service, spreadsheetId);
+		List<Sheet> sheetList = service.spreadsheets().get(spreadsheetId).execute().getSheets();
 		System.out.println("List of sheets: ");
 		int i=0;
 		for(Sheet ss : sheetList) {
@@ -123,25 +101,48 @@ public class SheetMain {
 		System.out.print("Input range (e.g. A1:B2), Enter n to fetch whole sheet: ");
 		String sheetRange = scanner.next();
 		scanner.close();
-		String range = (sheetRange.equals("n")) ? sheetList.get(sheetIndex).getProperties().getTitle() : 
-												 sheetList.get(sheetIndex).getProperties().getTitle()+"!"+sheetRange;
-		
+		Sheet chosen = sheetList.get(sheetIndex);
+		String sheetTitle = chosen.getProperties().getTitle();
+		String range = (sheetRange.equals("n")) ? sheetTitle : sheetTitle+"!"+sheetRange;
+
 		Get request = service.spreadsheets().values()
 				.get(spreadsheetId, range);
 		request.setValueRenderOption("FORMULA");
+//		GridRange gRange = new GridRange();
+//		gRange.setSheetId(sheetList.get(sheetIndex).getProperties().getSheetId())
+//			  .setStartRowIndex(0).setStartColumnIndex(0);
+//		System.out.println(gRange);
 		ValueRange response = request.execute();
 		List<List<Object>> values = response.getValues();
 		if (values == null || values.isEmpty()) {
 			System.out.println("No data found.");
 		} else {
+//			int rowCount = 0;
+//			int colCount = 0;
+//			for (List<Object> row : values ) {
+//			    if(row != null) {
+//			    		if(row.size()>colCount) colCount = row.size();
+//			    }
+//			    rowCount++;
+//			}
+//			Cell[][] cellArray = new Cell[rowCount][colCount];
+//			int rCount = 0;
+//			for (List<Object> row : values ) {
+//			    if(row != null) {
+//			    		for(int cCount = 0; cCount<row.size(); cCount++) 
+//			    			cellArray[rCount][cCount] = (row.get(cCount) == null) ? new Cell() : new Cell(row.get(cCount));
+//			    }
+//			    rCount++;
+//			}
 			int rowNum = 0;
 			for (List<Object> row : values) {
 				System.out.print(rowNum++ + "\t");
 				if(row != null) {
 					for(int j=0; j<row.size(); j++)
-						System.out.printf("%-20s", new StructDefine.Cell(row.get(j)).getFormula());
+						System.out.printf("%-30s", new StructDefine.Cell(row.get(j)).getValue());
 				}
 				System.out.println();
+
 			}
 		}
 	}
